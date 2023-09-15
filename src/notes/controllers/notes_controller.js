@@ -5,11 +5,7 @@ exports.createNote = async (req, res) => {
     const { userId, title, text, noteColor, tags } = req.body;
 
     try {
-        // Check if the logged-in user is creating the note
-        // if (userId !== req.userId) {
-        //   return res.status(403).json({ message: 'Unauthorized' });
-        // }
-
+   
         const newNote = new Note({
             userId,
             title,
@@ -27,23 +23,44 @@ exports.createNote = async (req, res) => {
         res.status(500).send('Error creating note');
     }
 };
-
-// Get all notes of the logged-in user
+// Get all notes of the logged-in user with pagination
 exports.getAllNotes = async (req, res) => {
     try {
         const userId = req.params['id'];
+        const { page, limit } = req.query;
 
-        // console.log(userId);
+        // Calculate the offset based on the current page and limit
+        const offset = (page - 1) * limit;
 
-        const notes = await Note.find({ userId: userId });
-        // console.log(notes)
-        res.json(notes);
+        // Query the database to retrieve paginated notes
+        const notes = await Note.find({ userId: userId })
+            .skip(offset)
+            .limit(limit);
+
+        // Count the total number of notes for the user
+        const totalCount = await Note.countDocuments({ userId: userId });
+
+        console.log({
+            notes,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalCount / limit),
+            totalItems: totalCount,
+        }
+
+        )
+
+        res.json({
+            notes,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalCount / limit),
+            totalItems: totalCount,
+        });
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Error retrieving notes');
     }
 };
-
 // Update a note
 exports.updateNote = async (req, res) => {
     const { userId, noteId, title, text, noteColor, tags } = req.body;

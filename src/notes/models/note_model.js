@@ -31,8 +31,7 @@ const NoteSchema = new Schema(
             type: Schema.Types.Date,
             required: true
         },
-        // tags associated with the note (e.g. #work, #personal)
-        tags: [{ type: String, ref: 'Tags' }],
+
     },
 
 );

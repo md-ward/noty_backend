@@ -2,17 +2,17 @@ const Note = require('../models/note_model');
 
 // Create a new note
 exports.createNote = async (req, res) => {
-    const { userId, title, text, noteColor, tags } = req.body;
+    const { userId, title, text, noteColor } = req.body;
 
     try {
-   
+
         const newNote = new Note({
             userId,
             title,
             text,
             noteColor,
             createdAt: new Date(),
-            tags,
+            
         });
 
         const savedNote = await newNote.save();
@@ -40,14 +40,14 @@ exports.getAllNotes = async (req, res) => {
         // Count the total number of notes for the user
         const totalCount = await Note.countDocuments({ userId: userId });
 
-        console.log({
-            notes,
-            currentPage: parseInt(page),
-            totalPages: Math.ceil(totalCount / limit),
-            totalItems: totalCount,
-        }
+        // console.log({
+        //     notes,
+        //     currentPage: parseInt(page),
+        //     totalPages: Math.ceil(totalCount / limit),
+        //     totalItems: totalCount,
+        // }
 
-        )
+        // )
 
         res.json({
             notes,
@@ -61,9 +61,38 @@ exports.getAllNotes = async (req, res) => {
         res.status(500).send('Error retrieving notes');
     }
 };
+// Search notes based on a query
+exports.searchNotes = async (req, res) => {
+    const { userId, query } = req.body;
+    console.log(req.body)
+    try {
+        // Convert the query to a regex pattern
+        const regexQuery = new RegExp(query, 'i');
+
+        // Query the database to search for notes
+        const notes = await Note.find({
+            userId,
+            $or: [
+                { title: { $regex: regexQuery } },
+                { text: { $regex: regexQuery } },
+            ],
+        });
+
+        // Count the total number of matching notes
+        const totalCount = notes.length;
+
+        res.json({
+            notes,
+            totalItems: totalCount,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error searching notes');
+    }
+};
 // Update a note
 exports.updateNote = async (req, res) => {
-    const { userId, noteId, title, text, noteColor, tags } = req.body;
+    const { userId, noteId, title, text, noteColor } = req.body;
 
     try {
         const note = await Note.findById(noteId);
@@ -83,7 +112,6 @@ exports.updateNote = async (req, res) => {
                 title,
                 text,
                 noteColor,
-                tags,
             },
             { new: true }
         );

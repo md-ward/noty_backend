@@ -27,17 +27,22 @@ exports.createTeam = async (req, res) => {
     res.status(500).json({ message: `Server Error: ${error}` });
   }
 };
-
-// Get all teams for the current team admin
+// Get teams of creator and team members
 exports.getAllTeams = async (req, res) => {
   try {
-    const teamAdminId = req.headers.teamadminid; // Extracting teamAdminId from the request headers
+    const teamAdminId = req.headers.userid; // Extracting teamAdminId from the request headers
+
     if (!teamAdminId) {
       throw ('Unauthorized user');
-    }
-    else {
-      // Find all teams for the current team admin
-      const teams = await Team.find({ teamAdminId }).populate('members', 'name').populate('teamAdminId', 'name -_id');
+    } else {
+      // Find the teams where the teamAdminId is the creator or one of the members
+      const teams = await Team.find({
+        $or: [
+          { teamAdminId }, // Teams created by the user
+          { members: { $in: [teamAdminId] } } // Teams that the user is a member of
+        ]
+      }).populate('members', 'name').populate('teamAdminId', 'name -_id');
+
       if (teams.length === 0) {
         res.status(200).json('No teams yet, create one');
       } else {
@@ -55,7 +60,6 @@ exports.getAllTeams = async (req, res) => {
     res.status(500).json({ message: `Server Error: ${error}` });
   }
 };
-
 // Remove a member from a team
 exports.removeMemberFromTeam = async (req, res) => {
   try {

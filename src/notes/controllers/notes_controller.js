@@ -5,6 +5,7 @@ exports.createNote = async (req, res) => {
   const { title, text, noteColor } = req.body;
   const userId = req.headers.userid;
 
+  console.log({ title, text, noteColor })
   try {
     const newNote = new Note({
       userId,
@@ -56,7 +57,7 @@ exports.getAllNotes = async (req, res) => {
 exports.searchNotes = async (req, res) => {
   const { query } = req.body;
   const userId = req.headers.userid;
-console.log(query,userId)
+  console.log(query, userId)
   try {
     // Convert the query to a regex pattern
     const regexQuery = new RegExp(query, 'i');

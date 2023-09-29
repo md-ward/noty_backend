@@ -7,17 +7,23 @@ const notesRouter = require("./src/notes/routes/note_routes");
 const registeringRouter = require("./src/registeration/routes/registering_routes");
 const tasksRouter = require('./src/tasks/routes/tasks_routes');
 const teamsRouter = require('./src/tasks/routes/teams_routes');
+const invitationRouter = require("./src/invitation/routes/inviteRouter");
+const authenticateToken = require('./authenticate');
 
-// Middleware
+//? Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable CORS for all routes
+app.use(authenticateToken)
+
+//! Routers........
 
 app.use('/reg', registeringRouter);
 app.use('/notes', notesRouter);
 app.use('/tasks', tasksRouter);
 app.use('/teams', teamsRouter);
+app.use('/invites', invitationRouter);
 
 // Connect to the database
 mongoose.connect('mongodb://127.0.0.1:27017/Notydp', { useNewUrlParser: true, useUnifiedTopology: true })

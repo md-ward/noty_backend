@@ -4,9 +4,9 @@ const User = require('../../registeration/models/registering_model');
 // Create a new team
 exports.createTeam = async (req, res) => {
   try {
-    const { name, members } = req.body;
+    const { name, members } = req.body.data;
     console.log(name)
-    const teamAdminId = req.headers.teamadminid; // Extracting teamAdminId from the request headers
+    const teamAdminId = req.user.userId; // Extracting teamAdminId from the request headers
     if (!teamAdminId) {
       throw ('Unauthorized user');
     }
@@ -30,7 +30,7 @@ exports.createTeam = async (req, res) => {
 // Get teams of creator and team members
 exports.getAllTeams = async (req, res) => {
   try {
-    const teamAdminId = req.headers.userid; // Extracting teamAdminId from the request headers
+    const teamAdminId = req.user.userId; // Extracting teamAdminId from the request headers
 
     if (!teamAdminId) {
       throw ('Unauthorized user');
@@ -64,7 +64,7 @@ exports.getAllTeams = async (req, res) => {
 exports.removeMemberFromTeam = async (req, res) => {
   try {
     const { teamId, memberId } = req.params;
-    const teamAdminId = req.headers.teamadminid; // Extracting teamAdminId from the request headers
+    const teamAdminId = req.user.userId; // Extracting teamAdminId from the request headers
     if (!teamAdminId) {
       throw ('Unauthorized user');
     }

@@ -15,15 +15,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable CORS for all routes
-app.use(authenticateToken)
 
 //! Routers........
 
 app.use('/reg', registeringRouter);
-app.use('/notes', notesRouter);
-app.use('/tasks', tasksRouter);
-app.use('/teams', teamsRouter);
-app.use('/invites', invitationRouter);
+app.use('/notes',authenticateToken, notesRouter);
+app.use('/tasks',authenticateToken, tasksRouter);
+app.use('/teams',authenticateToken, teamsRouter);
+app.use('/invites',authenticateToken, invitationRouter);
 
 // Connect to the database
 mongoose.connect('mongodb://127.0.0.1:27017/Notydp', { useNewUrlParser: true, useUnifiedTopology: true })

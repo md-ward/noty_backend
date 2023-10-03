@@ -1,12 +1,14 @@
+const jwt = require('jsonwebtoken');
 const Note = require('../models/note_model');
 
 // Create a new note
 exports.createNote = async (req, res) => {
   const { title, text, noteColor } = req.body;
-  const userId = req.headers.userid;
 
-  console.log({ title, text, noteColor })
   try {
+    // Extract the user ID from the token
+    const userId = req.user.userId;
+
     const newNote = new Note({
       userId,
       title,
@@ -27,7 +29,8 @@ exports.createNote = async (req, res) => {
 // Get all notes of the logged-in user with pagination
 exports.getAllNotes = async (req, res) => {
   try {
-    const userId = req.headers.userid;
+    // Extract the user ID from the token
+    const userId = req.user.userId;
     const { page, limit } = req.query;
 
     // Calculate the offset based on the current page and limit
@@ -56,9 +59,11 @@ exports.getAllNotes = async (req, res) => {
 // Search notes based on a query
 exports.searchNotes = async (req, res) => {
   const { query } = req.body;
-  const userId = req.headers.userid;
-  console.log(query, userId)
+
   try {
+    // Extract the user ID from the token
+    const userId = req.user.userId;
+
     // Convert the query to a regex pattern
     const regexQuery = new RegExp(query, 'i');
 
@@ -87,7 +92,6 @@ exports.searchNotes = async (req, res) => {
 // Update a note
 exports.updateNote = async (req, res) => {
   const { noteId, title, text, noteColor } = req.body;
-  const userId = req.headers.userid;
 
   try {
     const note = await Note.findById(noteId);
@@ -97,7 +101,7 @@ exports.updateNote = async (req, res) => {
     }
 
     // Check if the logged-in user is the owner of the note
-    if (note.userId.toString() !== userId) {
+    if (note.userId.toString() !== req.user.userId) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
@@ -121,7 +125,6 @@ exports.updateNote = async (req, res) => {
 // Delete a note
 exports.deleteNote = async (req, res) => {
   const { noteId } = req.body;
-  const userId = req.headers.userid;
 
   try {
     const note = await Note.findById(noteId);
@@ -131,7 +134,7 @@ exports.deleteNote = async (req, res) => {
     }
 
     // Check if the logged-in user is the owner of the note
-    if (note.userId.toString() !== userId) {
+    if (note.userId.toString() !== req.user.userId) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 

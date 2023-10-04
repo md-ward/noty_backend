@@ -2,12 +2,12 @@ const User = require('../../registeration/models/registering_model');
 const Task = require('../models/task_model');
 
 // Create a new task
-exports.createTask = async (req, res) => {
+exports.createTask = async (taskData, userId) => {
   try {
-    const { title, description, dueDate, assignedTo, status, teamId } = req.body;
+    const { title, description, dueDate, assignedTo, status, teamId } = taskData;
 
     // Extract the creator ID from the token
-    const creatorId = req.user.userId;
+    const creatorId = userId;
 
     // Create the task
     const task = await Task.create({
@@ -25,9 +25,9 @@ exports.createTask = async (req, res) => {
       $push: { assignedTasks: task._id },
     });
 
-    res.status(201).json(task);
+    return task;
   } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error}` });
+    return { message: `Server Error: ${error}` };
   }
 };
 

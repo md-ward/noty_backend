@@ -6,11 +6,12 @@ const invitationRouter = Router();
 invitationRouter.post("/create", inviteController.createInvite);
 
 // Accept an invitation
-invitationRouter.post("/:inviteId/accept", inviteController.acceptInvite);
+invitationRouter.put("/:inviteId/accept", inviteController.acceptInvite);
 
 // Decline an invitation
-invitationRouter.post("/:inviteId/decline", inviteController.declineInvite);
+invitationRouter.delete("/:inviteId/decline", inviteController.declineInvite);
 
 // Get all invitations for a user
-invitationRouter.get("/:userId", inviteController.getUserInvitations);
+invitationRouter.get("/", inviteController.getUserInvitations);
+
 module.exports = invitationRouter;

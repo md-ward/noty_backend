@@ -103,17 +103,16 @@ exports.updateTask = async (req, res) => {
 };
 
 // Delete a task
-exports.deleteTask = async (req, res) => {
+exports.deleteTask = async (taskId) => {
   try {
-    const taskId = req.params.id;
 
     // Extract the creator ID from the token
-    const creatorId = req.user.userId;
 
-    const task = await Task.findOneAndDelete({ _id: taskId, creatorId });
+
+    const task = await Task.findOneAndDelete({ _id: taskId });
 
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      return ({ message: 'Task not found' });
     }
 
     // Remove the task from the assigned user's assignedTasks field
@@ -121,8 +120,8 @@ exports.deleteTask = async (req, res) => {
       $pull: { assignedTasks: task._id },
     });
 
-    res.status(204).json({ message: 'Task deleted successfully' });
+    return { message: 'Task deleted successfully' }
   } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error}` });
+    return { message: `Server Error: ${error}` }
   }
 };

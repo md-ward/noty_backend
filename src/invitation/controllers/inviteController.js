@@ -5,11 +5,20 @@ const Invitation = require("../models/invitations_model");
 // Create an invitation
 exports.createInvite = async (req, res) => {
   try {
-    const { senderId, recipientId, teamId } = req.body;
+    const { recipientEmail, teamId } = req.body;
+    console.log(recipientEmail, teamId)
+    // Check if the user exists
+
+    const user = await User.findOne({ email: recipientEmail });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
 
     const invite = new Invitation({
-      senderId,
-      recipientId,
+      senderId: req.user.userId
+      ,
+      recipientId: user._id,
       teamId,
     });
 
@@ -17,6 +26,7 @@ exports.createInvite = async (req, res) => {
 
     res.json(invite);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Failed to create the invitation." });
   }
 };
@@ -25,7 +35,7 @@ exports.createInvite = async (req, res) => {
 exports.acceptInvite = async (req, res) => {
   try {
     const inviteId = req.params.inviteId;
-
+    
     const invitation = await Invitation.findById(inviteId);
 
     if (!invitation) {
@@ -52,7 +62,7 @@ exports.acceptInvite = async (req, res) => {
     team.members = team.members || [];
 
     // Update the user's teams and the team's members
-    user.teams.push(teamId);  
+    user.teams.push(teamId);
     team.members.push(recipientId);
 
     await user.save();
@@ -63,9 +73,12 @@ exports.acceptInvite = async (req, res) => {
 
     res.json({ message: "Invitation accepted successfully." });
   } catch (error) {
+    console.log(error)
+  
     res.status(500).json({ error: "Failed to accept the invitation." });
   }
 };
+
 // Decline an invitation
 exports.declineInvite = async (req, res) => {
   try {
@@ -75,6 +88,7 @@ exports.declineInvite = async (req, res) => {
 
     res.json({ message: "Invitation declined successfully." });
   } catch (error) {
+   
     res.status(500).json({ error: "Failed to decline the invitation." });
   }
 };
@@ -82,11 +96,15 @@ exports.declineInvite = async (req, res) => {
 // Get all invitations for a user
 exports.getUserInvitations = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    console.log(userId)
 
-    const invitations = await Invitation.find({ recipientId: userId });
+    // Check if the user exists
+    const user = await User.findOne({ _id: req.user.userId });
 
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const invitations = await Invitation.find({ recipientId: user._id }).populate('senderId', 'name -_id').populate('teamId','name');
     res.json(invitations);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve user invitations." });

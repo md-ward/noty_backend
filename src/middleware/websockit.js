@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { createTask } = require('../tasks/controllers/tasks_controller');
+const { createTask, updateTask, deleteTask } = require('../tasks/controllers/tasks_controller');
 
 const taskSocketMiddleware = (io) => {
   io.use((socket, next) => {
@@ -24,12 +24,13 @@ const taskSocketMiddleware = (io) => {
   });
 
   io.on('connection', (socket) => {
-    // Handle socket events and logic for the authenticated user
-    // ...
+    // !Handle socket events and logic for the authenticated user
+
 
     socket.on('task_action', async (actionData) => {
       const { action, taskId, taskData } = actionData;
       const userId = socket.userId;
+
 
       switch (action) {
         case 'create':
@@ -57,10 +58,11 @@ const taskSocketMiddleware = (io) => {
           }
           break;
 
+
         case 'delete':
           try {
             // Handle task deletion logic
-            await deleteTask(taskId);
+            const res = await deleteTask(taskId);
 
             // Emit task deleted event to all connected clients
             io.emit('task_deleted', taskId);

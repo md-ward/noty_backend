@@ -43,9 +43,7 @@ exports.getAllTeams = async (req, res) => {
         ]
       }).populate('members', 'name').populate('teamAdminId', 'name -_id');
 
-      if (teams.length === 0) {
-        res.status(200).json('No teams yet, create one');
-      } else {
+     
         const modifiedTeams = teams.map((team) => ({
           teamId: team._id,
           teamName: team.name,
@@ -53,7 +51,7 @@ exports.getAllTeams = async (req, res) => {
         }));
 
         res.status(200).json(modifiedTeams);
-      }
+      
     }
   } catch (error) {
     console.error(error);
